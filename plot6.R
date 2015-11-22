@@ -1,9 +1,10 @@
+## Function plot6() creates a faceted bar plot for comparison of PM2.5 emissions in Baltimore City and Los Angeles County
+## Effected due to Motor Vehicle sources
 plot6 <- function(){
-    
-    
     library(sqldf)
     library(dplyr)
     library(ggplot2)
+    
     ## Define the Path     
     fPath <- file.path("exdata-data-NEI_data")
     
@@ -25,15 +26,19 @@ plot6 <- function(){
     ## Summerizing the the grouped subset data for year to get sum totals by year 
     yearTots <- summarise(NEIyearGrp,Emissions = sum(Emissions))
     
-    ## Dividing Emissions by 1000, in order to represent as kilo tons on the chart
-    ##yearTots <- mutate(yearTots, Emissions = Emissions/1000)
+    ## Factorize 'year' so as to use it in the fill argument of aes, this will help create legends named 'year'
+    yearTots$year <- factor(yearTots$year)
     
     ## Opening a PNG port to copy the chart to a PNG file called plot6.png
     png("plot6.png",height = 480, width = 480,bg="transparent")
-    ggPlot6 <- ggplot(yearTots,aes(factor(year), Emissions,fill =factor(year))) +
-        geom_bar(stat="identity") + 
-        facet_grid(. ~ fips) +
-        labs(title="1999 - 2008 Motor Vehicle Emissions Change Comparison" ,x="Year", y="PM2.5 Emissions (tons)")
-    print(ggPlot6)
+
+        ## using ggplot() to create a facted bar chart for comparison between Baltimore City and Los Angeles County
+        ggPlot6 <- ggplot(yearTots,aes(factor(year), Emissions,fill = year)) +
+            geom_bar(stat="identity") + 
+            facet_grid(. ~ fips) +
+            labs(title="1999 - 2008 Motor Vehicle Emissions Change Comparison" ,x="Year", y="PM2.5 Emissions (tons)")
+    
+        print(ggPlot6)
+    ## Close the port
     dev.off()
 }
